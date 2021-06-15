@@ -20,14 +20,15 @@ function send() {
          name: user,
          message: msg,
          like: 0
+       
 
    })
 
-   document.getElementById("msg").innerHTML = "";
+   document.getElementById("msg").value = "";
 }
 
-
-      firebase.database().ref("/"+room).on('value', 
+      function getData() {
+            firebase.database().ref("/"+room).on('value', 
       function(snapshot) {
             document.getElementById("output").innerHTML = ""; 
             snapshot.forEach(function(childSnapshot) { 
@@ -39,15 +40,33 @@ function send() {
         var name = message_data["name"];
         var message = message_data["message"];
         var like = message_data["like"];
+        var dislike = message_data["dislike"];
         var nwt = "<h4>" + name + "<img src='tick.png' class='user_tick'></h4>"
         var mwt = "<h4 class='message_h4'>" + message + "</h4>"
-        var lwt = "<button class='btn btn-warning' onclick='updateLike(this.id)'>"
-        var swt = "<span class='glyphicon glyphicon-thumbs-up'>Likes: " + like + "</span></button><hr>"
+        var lwt = "<button class='btn btn-warning' id="+ firebase_message_id +" value=" + like + " onclick='updateLike(this.id)'>";
+        var swt = "<span class='glyphicon glyphicon-thumbs-up'>Likes: "+ like +"</span></button><hr>";
+        
 
         var row = nwt + mwt + lwt + swt;
         document.getElementById("output").innerHTML += row;
 
       } });  }); 
+      }
+      
+      getData();
+
+function updateLike(message_id) {
+      console.log("clicked on like button - " + message_id);
+      button_id = message_id;
+      likes = document.getElementById(button_id).value;
+      updated_likes = Number(likes) + 1;
+      console.log(updated_likes);
+
+      firebase.database().ref(room).child(message_id).update({
+            like: updated_likes
+      })
+
+}
 
 
 
